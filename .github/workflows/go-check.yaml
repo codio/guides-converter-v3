@@ -1,0 +1,20 @@
+name: go-check
+on: push
+jobs:
+  style-check:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Format
+          uses: Jerome1337/gofmt-action@v1.0.4
+          with:
+            gofmt-path: './cmd'
+            gofmt-flags: '-l -d'
+
+        - name: Slack
+          uses: codio/codio-slack-action@master
+          if: always()
+          with:
+            slack_hook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+            message: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} style-check> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}"
+            success: ${{ job.status }}
