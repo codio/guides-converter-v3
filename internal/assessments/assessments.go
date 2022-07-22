@@ -15,8 +15,6 @@ const (
 	ASSESSMENTS_DESCRIPTION_FILE = GUIDES_FOLDER + "/assessments.json"
 	ASSESSMENTS_FOLDER_NAME = "assessments"
 	ASSESSMENTS_FOLDER = GUIDES_FOLDER + "/" + ASSESSMENTS_FOLDER_NAME
-
-	DEFAULT_CONTENT = "[]"
 )
 
 func Convert() error {
@@ -30,7 +28,7 @@ func Convert() error {
 		return err
 	}
 	newAssessmentsFolder := filepath.Join(workDir, ASSESSMENTS_FOLDER)
-	if err := makeDir(newAssessmentsFolder); err != nil {
+	if err := utils.MakeDir(newAssessmentsFolder); err != nil {
 		return err
 	}
 	for _, val := range assessments {
@@ -47,16 +45,6 @@ func Convert() error {
 		return err
 	}
 	if err := utils.RemoveFile(pathToAssessmentDescription); err != nil {
-		return err
-	}
-	return nil
-}
-
-func makeDir(directory string) error {
-  if stat, err := os.Stat(directory); err == nil && stat.IsDir() {
-    return nil
-  }
-  if err := os.Mkdir(directory, 0777); err != nil {
 		return err
 	}
 	return nil
