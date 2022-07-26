@@ -51,22 +51,7 @@ func Convert() error {
 
 func createAssessmentJson(fileName string, content map[string]interface{}) error {
 	fPath :=  filepath.Join("./", ASSESSMENTS_FOLDER, fileName)
-	jsonFile, err := os.OpenFile(fPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		return err
-	}
-	defer jsonFile.Close()
-	data, err := json.MarshalIndent(content, "", "  ")
-	if err != nil {
-		return err
-	}
-	if err := jsonFile.Truncate(0); err != nil {
-		return err
-	}
-	if _, err := jsonFile.Seek(0, 0); err != nil {
-		return err
-	}
-	if _, err := jsonFile.Write(data); err != nil {
+	if err := utils.WriteJson(fPath, content); err != nil {
 		return err
 	}
 	return nil
