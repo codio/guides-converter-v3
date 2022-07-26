@@ -3,7 +3,6 @@ package assessments
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -24,7 +23,7 @@ func Convert() error {
   }
 	pathToAssessmentDescription := filepath.Join(workDir, ASSESSMENTS_DESCRIPTION_FILE)
 	var assessments []interface{}
-	if err := getAssessments(pathToAssessmentDescription, &assessments); err != nil {
+	if err := utils.GetParsedJson(pathToAssessmentDescription, &assessments); err != nil {
 		return err
 	}
 	newAssessmentsFolder := filepath.Join(workDir, ASSESSMENTS_FOLDER)
@@ -69,23 +68,6 @@ func createAssessmentJson(fileName string, content map[string]interface{}) error
 	}
 	if _, err := jsonFile.Write(data); err != nil {
 		return err
-	}
-	return nil
-}
-
-func getAssessments(path string, assessments *[]interface{}) error {
-	jsonFile, err := os.OpenFile(path, os.O_RDONLY, 0)
-	if err != nil {
-		return err
-	}
-	defer jsonFile.Close()
-
-	bytes, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return err
-	}
-	if err := json.Unmarshal(bytes, assessments); err != nil {
-    	return err
 	}
 	return nil
 }
