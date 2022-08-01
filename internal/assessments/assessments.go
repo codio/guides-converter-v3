@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	GUIDES_FOLDER = ".guides"
-	ASSESSMENTS_DESCRIPTION_FILE = GUIDES_FOLDER + "/assessments.json"
-	ASSESSMENTS_FOLDER_NAME = "assessments"
-	ASSESSMENTS_FOLDER = GUIDES_FOLDER + "/" + ASSESSMENTS_FOLDER_NAME
+	GuidesFolder = ".guides"
+	AssessmentsDescriptionFile = GuidesFolder + "/assessments.json"
+	AssessmentsFolderName = "assessments"
+	AssessmentsFolder = GuidesFolder + "/" + AssessmentsFolderName
 )
 
 func Convert() error {
@@ -20,12 +20,12 @@ func Convert() error {
   if err != nil {
     return err
   }
-	pathToAssessmentDescription := filepath.Join(workDir, ASSESSMENTS_DESCRIPTION_FILE)
+	pathToAssessmentDescription := filepath.Join(workDir, AssessmentsDescriptionFile)
 	var assessments []interface{}
 	if err := utils.GetParsedJson(pathToAssessmentDescription, &assessments); err != nil {
 		return err
 	}
-	newAssessmentsFolder := filepath.Join(workDir, ASSESSMENTS_FOLDER)
+	newAssessmentsFolder := filepath.Join(workDir, AssessmentsFolder)
 	if err := utils.MakeDir(newAssessmentsFolder); err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func Convert() error {
 }
 
 func createAssessmentJson(fileName string, content map[string]interface{}) error {
-	fPath :=  filepath.Join("./", ASSESSMENTS_FOLDER, fileName)
+	fPath :=  filepath.Join("./", AssessmentsFolder, fileName)
 	if err := utils.WriteJson(fPath, content); err != nil {
 		return err
 	}
