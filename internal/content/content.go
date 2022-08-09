@@ -14,16 +14,16 @@ import (
 )
 
 const (
-	GuidesFolder = ".guides"
-	GuidesContentFolder = GuidesFolder + "/content"
+	GuidesFolder          = ".guides"
+	GuidesContentFolder   = GuidesFolder + "/content"
 	GuidesDescriptionFile = GuidesFolder + "/metadata.json"
-	GuidesBookFile = GuidesFolder + "/book.json"
+	GuidesBookFile        = GuidesFolder + "/book.json"
 
 	TmpContentFolderName = "content_v3"
-	TmpContentFolder = GuidesFolder + "/" + TmpContentFolderName
-	IndexJsonFile = "index.json"
-	IndexFile = "index"
-	ContentFile = "content-file"
+	TmpContentFolder     = GuidesFolder + "/" + TmpContentFolderName
+	IndexJsonFile        = "index.json"
+	IndexFile            = "index"
+	ContentFile          = "content-file"
 
 	ContentHeaderFile = "header.html"
 	ContentFooterFile = "footer.html"
@@ -32,17 +32,12 @@ const (
 var metadataSections = make(map[string]map[string]interface{})
 var escapeNameRe = regexp.MustCompile("[^a-zA-Z0-9]")
 
-
 func Convert() error {
-	workDir, err := os.Getwd()
-  if err != nil {
-    return err
-  }
-	pathToTmpContent := filepath.Join(workDir, TmpContentFolder)
+	pathToTmpContent := filepath.Join("./", TmpContentFolder)
 	utils.MakeDir(pathToTmpContent)
 
-	pathToGuidesDescriptionFile := filepath.Join(workDir, GuidesDescriptionFile)
-	pathToBookFile := filepath.Join(workDir, GuidesBookFile)
+	pathToGuidesDescriptionFile := filepath.Join("./", GuidesDescriptionFile)
+	pathToBookFile := filepath.Join("./", GuidesBookFile)
 	var metadata map[string]interface{}
 	var structure map[string]interface{}
 	if err := utils.GetParsedJson(pathToGuidesDescriptionFile, &metadata); err != nil {
@@ -53,23 +48,22 @@ func Convert() error {
 	}
 
 	if sections, exists := metadata["sections"]; exists {
-		for _, item := range(sections.([]interface{})) {
+		for _, item := range sections.([]interface{}) {
 			section := item.(map[string]interface{})
-			fmt.Print(section)
 			if id, exists := section["id"]; exists {
 				metadataSections[id.(string)] = section
 			}
 		}
 	}
-	
-	if err := createRootMetadata(workDir, metadata, structure); err != nil {
+
+	if err := createRootMetadata(metadata, structure); err != nil {
 		return err
 	}
-	if err := copyHtmlHeaderFooter(workDir); err != nil {
+	if err := copyHtmlHeaderFooter(); err != nil {
 		return err
 	}
 	if children, exists := structure["children"]; exists {
-		for _, item := range(children.([]interface{})) {
+		for _, item := range children.([]interface{}) {
 			node := item.((map[string]interface{}))
 			convertNodeToNewFormat(pathToTmpContent, &metadata, &node)
 		}
@@ -81,7 +75,7 @@ func Convert() error {
 	if err := utils.RemoveFile(pathToBookFile); err != nil {
 		return err
 	}
-	pathToContent := filepath.Join(workDir, GuidesContentFolder)
+	pathToContent := filepath.Join("./", GuidesContentFolder)
 	if err := utils.RemoveDirectory(pathToContent); err != nil {
 		return err
 	}
@@ -91,7 +85,7 @@ func Convert() error {
 	return nil
 }
 
-func createRootMetadata(workDir string, metadata, structure map[string]interface{}) error {
+func createRootMetadata(metadata, structure map[string]interface{}) error {
 	newMetadata := make(map[string]interface{})
 	for k, v := range metadata {
 		if k != "sections" {
@@ -104,7 +98,7 @@ func createRootMetadata(workDir string, metadata, structure map[string]interface
 	if err != nil {
 		return err
 	}
-	pathToRootJson := filepath.Join(workDir, TmpContentFolder, IndexJsonFile)
+	pathToRootJson := filepath.Join("./", TmpContentFolder, IndexJsonFile)
 	return utils.WriteJson(pathToRootJson, newMetadata)
 }
 
@@ -114,7 +108,7 @@ func getOrder(children interface{}) ([]string, error) {
 		return nil, fmt.Errorf("get order error")
 	}
 	var order []string
-	for _, node := range(nodes) {
+	for _, node := range nodes {
 		node := node.(map[string]interface{})
 		nodeFileName, err := getNodeFileName(node)
 		if err != nil {
@@ -129,7 +123,7 @@ func getNodeFileName(node map[string]interface{}) (string, error) {
 	title := node["title"].(string)
 	id := node["id"].(string)
 	suffix := id[0:4]
-	name := escapeName(title) + "-" + suffix
+	name := fmt.Sprintf("%s-%s", escapeName(title), suffix)
 	return name, nil
 }
 
@@ -137,18 +131,18 @@ func escapeName(name string) string {
 	return escapeNameRe.ReplaceAllString(name, "-")
 }
 
-func copyHtmlHeaderFooter(workDir string) error {
-	contentFolder := filepath.Join(workDir, GuidesContentFolder)
-	tmpContentFolder := filepath.Join(workDir, TmpContentFolder)
+func copyHtmlHeaderFooter() error {
+	contentFolder := filepath.Join("./", GuidesContentFolder)
+	tmpContentFolder := filepath.Join("./", TmpContentFolder)
 	if err := copyF.Copy(
 		filepath.Join(contentFolder, ContentHeaderFile),
 		filepath.Join(tmpContentFolder, ContentHeaderFile)); err != nil {
-			log.Printf("error copy html header: %s\n", err)
+		log.Printf("error copy html header: %s\n", err)
 	}
 	if err := copyF.Copy(
 		filepath.Join(contentFolder, ContentFooterFile),
 		filepath.Join(tmpContentFolder, ContentFooterFile)); err != nil {
-			log.Printf("error copy html footer: %s\n", err)
+		log.Printf("error copy html footer: %s\n", err)
 	}
 	return nil
 }
@@ -163,7 +157,7 @@ func convertNodeToNewFormat(parentPath string, metadataPtr, nodePtr *map[string]
 	nodePath := filepath.Join(parentPath, nodeFileName)
 	node := *nodePtr
 	if children, exists := node["children"]; exists {
-		for _, item := range(children.([]interface{})) {
+		for _, item := range children.([]interface{}) {
 			node := item.(map[string]interface{})
 			convertNodeToNewFormat(nodePath, metadataPtr, &node)
 		}
@@ -178,7 +172,7 @@ func createNodeMetadata(parentPath string, metadataPtr, nodePtr *map[string]inte
 		return err
 	}
 	filePath := parentPath
-  metadataFileName := nodeFileName
+	metadataFileName := nodeFileName
 	if nType, exists := node["type"]; exists {
 		if nType.(string) != "page" {
 			metadataFileName = IndexFile
@@ -198,10 +192,6 @@ func createNodeMetadata(parentPath string, metadataPtr, nodePtr *map[string]inte
 }
 
 func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, nodePtr *map[string]interface{}) (map[string]interface{}, error) {
-	workDir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
 	var nodeMetadata = make(map[string]interface{})
 	node := *nodePtr
 	if title, exists := node["title"]; exists {
@@ -231,9 +221,8 @@ func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, node
 	}
 	if contentFile, exists := nodeMetadata[ContentFile]; exists {
 		extension := filepath.Ext(contentFile.(string))
-		newContentPath := filePath + "/" + metadataFileName + extension
+		newContentPath := fmt.Sprintf("%s/%s%s", filePath, metadataFileName, extension)
 		newContentPath = strings.Replace(newContentPath, TmpContentFolder, GuidesContentFolder, 1)
-		newContentPath = strings.Replace(newContentPath, workDir + "/", "", 1)
 		newMetadata["contentFile"] = newContentPath
 		delete(newMetadata, ContentFile)
 	}
@@ -248,13 +237,9 @@ func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, node
 }
 
 func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]interface{}) error {
-	workDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
 	var nodeMetadata = make(map[string]interface{})
 	node := *nodePtr
-	pageId, exists := node["pageId"].(string);
+	pageId, exists := node["pageId"].(string)
 	if !exists {
 		return nil
 	}
@@ -267,30 +252,30 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 	if !exists {
 		return fmt.Errorf("content for node %s not found", pageId)
 	}
-	if _, err := os.Stat(filepath.Join(workDir, nodeContentPath)); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join("./", nodeContentPath)); os.IsNotExist(err) {
 		return fmt.Errorf("content for node %s not found", pageId)
 	}
 	extension := filepath.Ext(nodeContentPath)
-  nodeFileName, err := getNodeFileName(node)
+	nodeFileName, err := getNodeFileName(node)
 	if err != nil {
 		return err
 	}
 
 	fileName := IndexFile + extension
-	if typeN, exists := node["type"]; exists && typeN.(string) == "page"  {
+	if typeN, exists := node["type"]; exists && typeN.(string) == "page" {
 		fileName = nodeFileName + extension
 		if err := copyF.Copy(
-			filepath.Join(workDir, nodeContentPath),
+			filepath.Join("./", nodeContentPath),
 			filepath.Join(parentPath, fileName)); err != nil {
-				log.Printf("error copy node content: %s\n", err)
+			log.Printf("error copy node content: %s\n", err)
 		}
 		return nil
 	}
 
 	if err := copyF.Copy(
-		filepath.Join(workDir, nodeContentPath),
+		filepath.Join("./", nodeContentPath),
 		filepath.Join(parentPath, nodeFileName, fileName)); err != nil {
-			log.Printf("error copy node content: %s\n", err)
+		log.Printf("error copy node content: %s\n", err)
 	}
 	return nil
 }

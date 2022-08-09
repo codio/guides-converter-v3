@@ -2,30 +2,25 @@ package assessments
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/codio/guides-converter-v3/internal/utils"
 )
 
 const (
-	GuidesFolder = ".guides"
+	GuidesFolder               = ".guides"
 	AssessmentsDescriptionFile = GuidesFolder + "/assessments.json"
-	AssessmentsFolderName = "assessments"
-	AssessmentsFolder = GuidesFolder + "/" + AssessmentsFolderName
+	AssessmentsFolderName      = "assessments"
+	AssessmentsFolder          = GuidesFolder + "/" + AssessmentsFolderName
 )
 
 func Convert() error {
-	workDir, err := os.Getwd()
-  if err != nil {
-    return err
-  }
-	pathToAssessmentDescription := filepath.Join(workDir, AssessmentsDescriptionFile)
+	pathToAssessmentDescription := filepath.Join("./", AssessmentsDescriptionFile)
 	var assessments []interface{}
 	if err := utils.GetParsedJson(pathToAssessmentDescription, &assessments); err != nil {
 		return err
 	}
-	newAssessmentsFolder := filepath.Join(workDir, AssessmentsFolder)
+	newAssessmentsFolder := filepath.Join("./", AssessmentsFolder)
 	if err := utils.MakeDir(newAssessmentsFolder); err != nil {
 		return err
 	}
@@ -36,7 +31,7 @@ func Convert() error {
 		}
 		id, ok := node["taskId"].(string)
 		if ok {
-			createAssessmentJson(id + ".json", node)
+			createAssessmentJson(id+".json", node)
 		}
 	}
 	if err := utils.RemoveDirectoryIfEmpty(newAssessmentsFolder); err != nil {
@@ -49,7 +44,7 @@ func Convert() error {
 }
 
 func createAssessmentJson(fileName string, content map[string]interface{}) error {
-	fPath :=  filepath.Join("./", AssessmentsFolder, fileName)
+	fPath := filepath.Join("./", AssessmentsFolder, fileName)
 	if err := utils.WriteJson(fPath, content); err != nil {
 		return err
 	}

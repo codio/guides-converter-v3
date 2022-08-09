@@ -7,14 +7,14 @@ import (
 )
 
 func RemoveFile(file string) error {
-  return removeByPath(file)
+	return removeByPath(file)
 }
 
 func RemoveDirectory(dir string) error {
 	err := os.RemoveAll(dir)
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -30,17 +30,17 @@ func RemoveDirectoryIfEmpty(dir string) error {
 }
 
 func MakeDir(directory string) error {
-  if stat, err := os.Stat(directory); err == nil && stat.IsDir() {
-    return nil
-  }
-  if err := os.Mkdir(directory, 0777); err != nil {
+	if stat, err := os.Stat(directory); err == nil && stat.IsDir() {
+		return nil
+	}
+	if err := os.Mkdir(directory, 0777); err != nil {
 		return err
 	}
 	return nil
 }
 
 func Rename(oldPath, newPath string) error {
-  if err := os.Rename(oldPath, newPath); err != nil {
+	if err := os.Rename(oldPath, newPath); err != nil {
 		return err
 	}
 	return nil
@@ -48,9 +48,9 @@ func Rename(oldPath, newPath string) error {
 
 func removeByPath(path string) error {
 	err := os.Remove(path)
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -66,7 +66,7 @@ func GetParsedJson(path string, parsed any) error {
 		return err
 	}
 	if err := json.Unmarshal(bytes, parsed); err != nil {
-    	return err
+		return err
 	}
 	return nil
 }
