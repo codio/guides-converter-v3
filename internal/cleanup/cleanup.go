@@ -14,6 +14,10 @@ func AfterError() error {
 	if err := utils.RemoveDirectory(constants.TmpContentFolder); err != nil {
 		return err
 	}
+	// clean up AlreadyInProgressFlag
+	if err := utils.RemoveFile(constants.AlreadyInProgressFlag); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -36,6 +40,10 @@ func AfterSuccessfull() error {
 		return err
 	}
 	if err := utils.Rename(constants.TmpContentFolder, constants.GuidesContentFolder); err != nil {
+		return err
+	}
+	// clean up AlreadyInProgressFlag
+	if err := utils.RemoveFile(constants.AlreadyInProgressFlag); err != nil {
 		return err
 	}
 	return nil

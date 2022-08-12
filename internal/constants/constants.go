@@ -16,4 +16,6 @@ const (
 
 	ContentHeaderFile = "header.html"
 	ContentFooterFile = "footer.html"
+
+	AlreadyInProgressFlag = "./converterV3AlreadyInProgress"
 )
