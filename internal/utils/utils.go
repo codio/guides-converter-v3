@@ -7,12 +7,14 @@ import (
 )
 
 func RemoveFile(file string) error {
-	return removeByPath(file)
+	if err := os.Remove(file); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
 }
 
 func RemoveDirectory(dir string) error {
-	err := os.RemoveAll(dir)
-	if err != nil {
+	if err := os.RemoveAll(dir); err != nil && !os.IsNotExist(err) {
 		return err
 	}
 	return nil
@@ -24,7 +26,7 @@ func RemoveDirectoryIfEmpty(dir string) error {
 		return err
 	}
 	if len(items) == 0 {
-		removeByPath(dir)
+		RemoveDirectory(dir)
 	}
 	return nil
 }
@@ -41,14 +43,6 @@ func MakeDir(directory string) error {
 
 func Rename(oldPath, newPath string) error {
 	if err := os.Rename(oldPath, newPath); err != nil {
-		return err
-	}
-	return nil
-}
-
-func removeByPath(path string) error {
-	err := os.Remove(path)
-	if err != nil {
 		return err
 	}
 	return nil

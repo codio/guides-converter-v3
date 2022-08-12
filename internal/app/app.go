@@ -1,18 +1,22 @@
 package app
 
 import (
-	"log"
-
 	"github.com/codio/guides-converter-v3/internal/assessments"
 	"github.com/codio/guides-converter-v3/internal/content"
+	"github.com/codio/guides-converter-v3/internal/cleanup"
 )
 
 func Run() error {
 	if err := assessments.Convert(); err != nil {
-		log.Printf("error convert assessments: %s\n", err)
+		cleanup.AfterError()
+		return err
 	}
 	if err := content.Convert(); err != nil {
-		log.Printf("error convert content: %s\n", err)
+		cleanup.AfterError()
+		return err
+	}
+	if err := cleanup.AfterSuccessfull(); err != nil {
+		return err
 	}
 	return nil
 }

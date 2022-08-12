@@ -2,26 +2,22 @@ package assessments
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
+	"github.com/codio/guides-converter-v3/internal/constants"
 	"github.com/codio/guides-converter-v3/internal/utils"
 )
 
-const (
-	GuidesFolder               = ".guides"
-	AssessmentsDescriptionFile = GuidesFolder + "/assessments.json"
-	AssessmentsFolderName      = "assessments"
-	AssessmentsFolder          = GuidesFolder + "/" + AssessmentsFolderName
-)
-
 func Convert() error {
-	pathToAssessmentDescription := filepath.Join("./", AssessmentsDescriptionFile)
+	if _, err := os.Stat(constants.AssessmentsDescriptionFile); os.IsNotExist(err) {
+		return nil
+	}
 	var assessments []interface{}
-	if err := utils.GetParsedJson(pathToAssessmentDescription, &assessments); err != nil {
+	if err := utils.GetParsedJson(constants.AssessmentsDescriptionFile, &assessments); err != nil {
 		return err
 	}
-	newAssessmentsFolder := filepath.Join("./", AssessmentsFolder)
-	if err := utils.MakeDir(newAssessmentsFolder); err != nil {
+	if err := utils.MakeDir(constants.AssessmentsFolder); err != nil {
 		return err
 	}
 	for _, val := range assessments {
@@ -34,17 +30,11 @@ func Convert() error {
 			createAssessmentJson(id+".json", node)
 		}
 	}
-	if err := utils.RemoveDirectoryIfEmpty(newAssessmentsFolder); err != nil {
-		return err
-	}
-	if err := utils.RemoveFile(pathToAssessmentDescription); err != nil {
-		return err
-	}
 	return nil
 }
 
 func createAssessmentJson(fileName string, content map[string]interface{}) error {
-	fPath := filepath.Join("./", AssessmentsFolder, fileName)
+	fPath := filepath.Join("./", constants.AssessmentsFolder, fileName)
 	if err := utils.WriteJson(fPath, content); err != nil {
 		return err
 	}
