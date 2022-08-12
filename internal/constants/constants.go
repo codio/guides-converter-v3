@@ -9,10 +9,10 @@ const (
 	GuidesDescriptionFile = GuidesFolder + "/metadata.json"
 	GuidesBookFile        = "./" + GuidesFolder + "/book.json"
 
-	TmpContentFolder     = "./" + GuidesFolder + "/content_v3"
-	IndexJsonFile        = "index.json"
-	IndexFile            = "index"
-	ContentFile          = "content-file"
+	TmpContentFolder = "./" + GuidesFolder + "/content_v3"
+	IndexJsonFile    = "index.json"
+	IndexFile        = "index"
+	ContentFile      = "content-file"
 
 	ContentHeaderFile = "header.html"
 	ContentFooterFile = "footer.html"

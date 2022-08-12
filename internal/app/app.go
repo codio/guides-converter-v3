@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/codio/guides-converter-v3/internal/assessments"
-	"github.com/codio/guides-converter-v3/internal/content"
 	"github.com/codio/guides-converter-v3/internal/cleanup"
+	"github.com/codio/guides-converter-v3/internal/content"
 )
 
 func Run() error {
