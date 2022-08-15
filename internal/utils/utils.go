@@ -21,6 +21,9 @@ func RemoveDirectory(dir string) error {
 }
 
 func RemoveDirectoryIfEmpty(dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		return nil
+	}
 	items, err := os.ReadDir(dir)
 	if err != nil {
 		return err
