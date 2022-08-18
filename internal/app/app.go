@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/codio/guides-converter-v3/internal/assessments"
@@ -12,21 +13,21 @@ import (
 func Run() error {
 	inProgress, err := alreadyInProgress()
 	if err != nil {
-		return err
+		return fmt.Errorf("alreadyInProgress error")
 	}
 	if inProgress {
 		return nil
 	}
 	if err := assessments.Convert(); err != nil {
 		cleanup.AfterError()
-		return err
+		return fmt.Errorf("assessments convert error")
 	}
 	if err := content.Convert(); err != nil {
 		cleanup.AfterError()
-		return err
+		return fmt.Errorf("content convert error")
 	}
 	if err := cleanup.AfterSuccessfull(); err != nil {
-		return err
+		return fmt.Errorf("cleanup error")
 	}
 	return nil
 }
