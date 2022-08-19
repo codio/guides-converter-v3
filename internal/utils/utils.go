@@ -38,7 +38,7 @@ func MakeDir(directory string) error {
 	if stat, err := os.Stat(directory); err == nil && stat.IsDir() {
 		return nil
 	}
-	if err := os.Mkdir(directory, 0777); err != nil {
+	if err := os.Mkdir(directory, 0755); err != nil {
 		return err
 	}
 	return nil
@@ -69,7 +69,7 @@ func GetParsedJson(path string, parsed any) error {
 }
 
 func WriteJson(path string, content map[string]interface{}) error {
-	jsonFile, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	jsonFile, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}

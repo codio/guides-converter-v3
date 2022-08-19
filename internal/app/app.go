@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os"
+	"syscall"
 
 	"github.com/codio/guides-converter-v3/internal/assessments"
 	"github.com/codio/guides-converter-v3/internal/cleanup"
@@ -33,13 +34,13 @@ func Run() error {
 }
 
 func alreadyInProgress() (bool, error) {
-	if _, err := os.Stat(constants.AlreadyInProgressFlag); err == nil {
+	f, err := os.OpenFile(constants.AlreadyInProgressFlag, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return true, err
+	}
+	fileDescriptor := int(f.Fd())
+	if err := syscall.Flock(fileDescriptor, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		return true, nil
 	}
-	f, err := os.Create(constants.AlreadyInProgressFlag)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
 	return false, nil
 }

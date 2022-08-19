@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/codio/guides-converter-v3/internal/constants"
 	"github.com/codio/guides-converter-v3/internal/utils"
 )
 
 func Convert() error {
+	fmt.Println("QQQQQQQQQQQq")
+	time.Sleep(10 * time.Second)
+	fmt.Println("wwwwwwwwwwwwwww")
 	if _, err := os.Stat(constants.AssessmentsDescriptionFile); os.IsNotExist(err) {
 		return nil
 	}
