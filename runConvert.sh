@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -xe
+
 converterVersion=$1
 
 run_with_failover () {
