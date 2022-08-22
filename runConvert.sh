@@ -5,7 +5,7 @@ converterVersion=$1
 run_with_failover () {
   "$@"
   ret=$?
-  if [[ $ret -ne 0 ]]
+  if [ $ret -ne 0 ]
   then
       rm guides-converter-v3
       exit $ret
