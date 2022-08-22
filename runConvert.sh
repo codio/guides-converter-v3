@@ -14,7 +14,7 @@ run_with_failover () {
   fi
 }
 
-curl "https://static-assets.codio.com/guides-converter-v3/guides-converter-v3-${converterVersion}" --output guides-converter-v3
+run_with_failover curl "https://static-assets.codio.com/guides-converter-v3/guides-converter-v3-${converterVersion}" --output guides-converter-v3
 
 run_with_failover chmod +x ./guides-converter-v3
 
