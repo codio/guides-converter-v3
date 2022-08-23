@@ -24,7 +24,7 @@ func Convert() error {
 		return err
 	}
 	if err := utils.GetParsedJson(constants.GuidesBookFile, &structure); err != nil {
-		return nil
+		return err
 	}
 
 	if sections, exists := metadata["sections"]; exists {
