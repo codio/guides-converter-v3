@@ -73,7 +73,7 @@ func getOrder(children interface{}) ([]string, error) {
 	if !ok {
 		return nil, fmt.Errorf("get order error")
 	}
-	var order []string
+	order := make([]string, 0)
 	for _, node := range nodes {
 		node := node.(map[string]interface{})
 		nodeFileName, err := getNodeFileName(node)
