@@ -74,7 +74,7 @@ func WriteJson(path string, content map[string]interface{}) error {
 		return err
 	}
 	defer jsonFile.Close()
-	data, err := json.MarshalIndent(content, "", "  ")
+	data, err := json.MarshalIndent(content, "", "	")
 	if err != nil {
 		return err
 	}
