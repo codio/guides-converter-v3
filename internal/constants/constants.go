@@ -3,14 +3,14 @@ package constants
 const (
 	WorkSpace                  = "/home/codio/workspace/"
 	GuidesFolder               = WorkSpace + ".guides"
-	AssessmentsDescriptionFile = WorkSpace + GuidesFolder + "/assessments.json"
-	AssessmentsFolder          = WorkSpace + GuidesFolder + "/assessments"
+	AssessmentsDescriptionFile = GuidesFolder + "/assessments.json"
+	AssessmentsFolder          = GuidesFolder + "/assessments"
 
-	GuidesContentFolder   = WorkSpace + GuidesFolder + "/content"
+	GuidesContentFolder   = GuidesFolder + "/content"
 	GuidesDescriptionFile = GuidesFolder + "/metadata.json"
-	GuidesBookFile        = WorkSpace + GuidesFolder + "/book.json"
+	GuidesBookFile        = GuidesFolder + "/book.json"
 
-	TmpContentFolder = WorkSpace + GuidesFolder + "/content_v3"
+	TmpContentFolder = GuidesFolder + "/content_v3"
 	IndexJsonFile    = "index.json"
 	IndexFile        = "index"
 	ContentFile      = "content-file"
