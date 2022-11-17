@@ -1,15 +1,16 @@
 package constants
 
 const (
-	GuidesFolder               = ".guides"
-	AssessmentsDescriptionFile = "./" + GuidesFolder + "/assessments.json"
-	AssessmentsFolder          = "./" + GuidesFolder + "/assessments"
+	WorkSpace                  = "/home/codio/workspace/"
+	GuidesFolder               = WorkSpace + ".guides"
+	AssessmentsDescriptionFile = WorkSpace + GuidesFolder + "/assessments.json"
+	AssessmentsFolder          = WorkSpace + GuidesFolder + "/assessments"
 
-	GuidesContentFolder   = "./" + GuidesFolder + "/content"
+	GuidesContentFolder   = WorkSpace + GuidesFolder + "/content"
 	GuidesDescriptionFile = GuidesFolder + "/metadata.json"
-	GuidesBookFile        = "./" + GuidesFolder + "/book.json"
+	GuidesBookFile        = WorkSpace + GuidesFolder + "/book.json"
 
-	TmpContentFolder = "./" + GuidesFolder + "/content_v3"
+	TmpContentFolder = WorkSpace + GuidesFolder + "/content_v3"
 	IndexJsonFile    = "index.json"
 	IndexFile        = "index"
 	ContentFile      = "content-file"
@@ -17,5 +18,5 @@ const (
 	ContentHeaderFile = "header.html"
 	ContentFooterFile = "footer.html"
 
-	AlreadyInProgressFlag = "./converterV3AlreadyInProgress"
+	AlreadyInProgressFlag = WorkSpace + "converterV3AlreadyInProgress"
 )
