@@ -34,7 +34,7 @@ func Convert() error {
 }
 
 func createAssessmentJson(fileName string, content map[string]interface{}) error {
-	fPath := filepath.Join("./", constants.AssessmentsFolder, fileName)
+	fPath := filepath.Join(constants.AssessmentsFolder, fileName)
 	if err := utils.WriteJson(fPath, content); err != nil {
 		return err
 	}
