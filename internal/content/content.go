@@ -102,7 +102,8 @@ func pageNotExists(node map[string]interface{}) (bool, error) {
 		return true, nil
 	}
 	if contentFilePath, exists := section[constants.ContentFile]; exists {
-		fileExists, err := utils.FileIsExists(contentFilePath.(string))
+		fullFilePath := filepath.Join(constants.WorkSpace, contentFilePath.(string))
+		fileExists, err := utils.FileIsExists(fullFilePath)
 		if err != nil {
 			return true, err
 		}
