@@ -193,15 +193,15 @@ func createNodeMetadata(parentPath string, metadataPtr, nodePtr *map[string]inte
 func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, nodePtr *map[string]interface{}) (map[string]interface{}, error) {
 	var nodeMetadata = make(map[string]interface{})
 	node := *nodePtr
-	if title, exists := node["title"]; exists {
-		nodeMetadata["title"] = title.(string)
-	}
 	if pageId, exists := node["pageId"]; exists {
 		if section, exists := metadataSections[pageId.(string)]; exists {
 			nodeMetadata = section
 		} else {
 			return nil, fmt.Errorf("metadata for node %s not found", pageId)
 		}
+	}
+	if title, exists := node["title"]; exists {
+		nodeMetadata["title"] = title.(string)
 	}
 	if contentType, exists := nodeMetadata["type"]; exists {
 		nodeMetadata["contentType"] = contentType.(string)
