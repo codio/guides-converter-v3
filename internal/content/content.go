@@ -76,11 +76,11 @@ func getOrder(children interface{}) ([]string, error) {
 	order := make([]string, 0)
 	for _, node := range nodes {
 		node := node.(map[string]interface{})
-		pageIsNotExists, err := pageNotExists(node)
+		nodeIsNotExists, err := nodeNotExists(node)
 		if err != nil {
 			return nil, err
 		}
-		if (pageIsNotExists) {
+		if (nodeIsNotExists) {
 			continue
 		}
 		nodeFileName, err := getNodeFileName(node)
@@ -92,12 +92,12 @@ func getOrder(children interface{}) ([]string, error) {
 	return order, nil
 }
 
-func pageNotExists(node map[string]interface{}) (bool, error) {
+func nodeNotExists(node map[string]interface{}) (bool, error) {
 	if (node["type"].(string) != "page") {
 		return false, nil
 	}
-	id := node["id"].(string)
-	section, sectionExists := metadataSections[id]
+	pageId := node["pageId"].(string)
+	section, sectionExists := metadataSections[pageId]
 	if (!sectionExists) {
 		return true, nil
 	}
