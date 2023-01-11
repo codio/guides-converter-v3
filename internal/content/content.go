@@ -19,12 +19,16 @@ var escapeNameRe = regexp.MustCompile("[^a-zA-Z0-9]")
 func Convert() error {
 	utils.MakeDir(constants.TmpContentFolder)
 	var metadata map[string]interface{}
-	var structure map[string]interface{}
+	var structure = make(map[string]interface{})
+	var rootChildrenWithoutBook []interface{}
+	bookJsonIsExists, _ := utils.FileIsExists(constants.GuidesBookFile)
 	if err := utils.GetParsedJson(constants.GuidesDescriptionFile, &metadata); err != nil {
 		return err
 	}
-	if err := utils.GetParsedJson(constants.GuidesBookFile, &structure); err != nil {
-		return err
+	if bookJsonIsExists {
+		if err := utils.GetParsedJson(constants.GuidesBookFile, &structure); err != nil {
+			return err
+		}
 	}
 
 	if sections, exists := metadata["sections"]; exists {
@@ -32,8 +36,14 @@ func Convert() error {
 			section := item.(map[string]interface{})
 			if id, err := convertInterfaceToString(section["id"]); err == nil {
 				metadataSections[id] = section
+				if !bookJsonIsExists {
+					addToRootChildrenWithoutBook(&rootChildrenWithoutBook, section)
+				}
 			}
 		}
+	}
+	if !bookJsonIsExists {
+		structure["children"] = rootChildrenWithoutBook
 	}
 
 	if err := createRootMetadata(metadata, structure); err != nil {
@@ -54,6 +64,16 @@ func Convert() error {
 	return nil
 }
 
+func addToRootChildrenWithoutBook(structurePtr *[]interface{}, section map[string]interface{}) {
+	var item = make(map[string]interface{})
+	item["title"] = section["title"]
+	item["id"] = section["id"]
+	item["type"] = "page"
+	item["pageId"] = section["id"]
+
+	*structurePtr = append(*structurePtr, item)
+}
+
 func createRootMetadata(metadata, structure map[string]interface{}) error {
 	newMetadata := make(map[string]interface{})
 	for k, v := range metadata {
@@ -62,10 +82,12 @@ func createRootMetadata(metadata, structure map[string]interface{}) error {
 		}
 	}
 	newMetadata["title"] = structure["name"]
-	order, err := getOrder(structure["children"])
-	newMetadata["order"] = order
-	if err != nil {
-		return err
+	if children, exists := structure["children"]; exists {
+		order, err := getOrder(children)
+		if err != nil {
+			return err
+		}
+		newMetadata["order"] = order
 	}
 	pathToRootJson := filepath.Join(constants.TmpContentFolder, constants.IndexJsonFile)
 	return utils.WriteJson(pathToRootJson, newMetadata)
