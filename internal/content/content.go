@@ -30,8 +30,8 @@ func Convert() error {
 	if sections, exists := metadata["sections"]; exists {
 		for _, item := range sections.([]interface{}) {
 			section := item.(map[string]interface{})
-			if id, exists := section["id"]; exists {
-				metadataSections[id.(string)] = section
+			if id, err := convertInterfaceToString(section["id"]); err == nil {
+				metadataSections[id] = section
 			}
 		}
 	}
@@ -45,7 +45,10 @@ func Convert() error {
 	if children, exists := structure["children"]; exists {
 		for _, item := range children.([]interface{}) {
 			node := item.((map[string]interface{}))
-			convertNodeToNewFormat(constants.TmpContentFolder, &metadata, &node)
+			err := convertNodeToNewFormat(constants.TmpContentFolder, &metadata, &node)
+			if err != nil {
+				log.Println(err.Error())
+			}
 		}
 	}
 	return nil
@@ -76,6 +79,13 @@ func getOrder(children interface{}) ([]string, error) {
 	order := make([]string, 0)
 	for _, node := range nodes {
 		node := node.(map[string]interface{})
+		nodeIsNotExists, err := nodeNotExists(node)
+		if err != nil {
+			return nil, err
+		}
+		if (nodeIsNotExists) {
+			continue
+		}
 		nodeFileName, err := getNodeFileName(node)
 		if err != nil {
 			return nil, err
@@ -85,9 +95,43 @@ func getOrder(children interface{}) ([]string, error) {
 	return order, nil
 }
 
+func nodeNotExists(node map[string]interface{}) (bool, error) {
+	nodeType, err := convertInterfaceToString(node["type"])
+	if err != nil {
+		return true, err
+	}
+	if (nodeType != "page") {
+		return false, nil
+	}
+	pageId, err := convertInterfaceToString(node["pageId"])
+	if err != nil {
+		return true, err
+	}
+	section, sectionExists := metadataSections[pageId]
+	if (!sectionExists) {
+		return true, nil
+	}
+	contentFilePath, err := convertInterfaceToString(section[constants.ContentFile])
+	if err != nil {
+		return true, err
+	}
+	fullFilePath := filepath.Join(constants.WorkSpace, contentFilePath)
+	fileExists, err := utils.FileIsExists(fullFilePath)
+	if err != nil {
+		return true, err
+	}
+	return !fileExists, nil
+}
+
 func getNodeFileName(node map[string]interface{}) (string, error) {
-	title := node["title"].(string)
-	id := node["id"].(string)
+	title, err := convertInterfaceToString(node["title"])
+	if err != nil {
+		return "", err
+	}
+	id, err := convertInterfaceToString(node["id"])
+	if err != nil {
+		return "", err
+	}
 	suffix := id[0:4]
 	name := fmt.Sprintf("%s-%s", escapeName(title), suffix)
 	return name, nil
@@ -112,8 +156,16 @@ func copyHtmlHeaderFooter() error {
 }
 
 func convertNodeToNewFormat(parentPath string, metadataPtr, nodePtr *map[string]interface{}) error {
-	createNodeMetadata(parentPath, metadataPtr, nodePtr)
-	convertNodeContent(parentPath, metadataPtr, nodePtr)
+	err := convertNodeContent(parentPath, metadataPtr, nodePtr)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+	err = createNodeMetadata(parentPath, metadataPtr, nodePtr)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
 	nodeFileName, err := getNodeFileName(*nodePtr)
 	if err != nil {
 		return err
@@ -123,7 +175,10 @@ func convertNodeToNewFormat(parentPath string, metadataPtr, nodePtr *map[string]
 	if children, exists := node["children"]; exists {
 		for _, item := range children.([]interface{}) {
 			node := item.(map[string]interface{})
-			convertNodeToNewFormat(nodePath, metadataPtr, &node)
+			err := convertNodeToNewFormat(nodePath, metadataPtr, &node)
+			if err != nil {
+				log.Println(err.Error())
+			}
 		}
 	}
 	return nil
@@ -137,11 +192,13 @@ func createNodeMetadata(parentPath string, metadataPtr, nodePtr *map[string]inte
 	}
 	filePath := parentPath
 	metadataFileName := nodeFileName
-	if nType, exists := node["type"]; exists {
-		if nType.(string) != "page" {
-			metadataFileName = constants.IndexFile
-			filePath = filepath.Join(parentPath, nodeFileName)
-		}
+	nType, err := convertInterfaceToString(node["type"])
+	if err != nil {
+		return err
+	}
+	if nType != "page" {
+		metadataFileName = constants.IndexFile
+		filePath = filepath.Join(parentPath, nodeFileName)
 	}
 	content, err := getNodeMetadataContent(filePath, metadataFileName, metadataPtr, nodePtr)
 	if err != nil {
@@ -158,18 +215,24 @@ func createNodeMetadata(parentPath string, metadataPtr, nodePtr *map[string]inte
 func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, nodePtr *map[string]interface{}) (map[string]interface{}, error) {
 	var nodeMetadata = make(map[string]interface{})
 	node := *nodePtr
-	if pageId, exists := node["pageId"]; exists {
-		if section, exists := metadataSections[pageId.(string)]; exists {
+	if _, exists := node["pageId"]; exists {
+		pageId, err := convertInterfaceToString(node["pageId"])
+		if err != nil {
+			return nil, err
+		}
+		if section, exists := metadataSections[pageId]; exists {
 			nodeMetadata = section
 		} else {
 			return nil, fmt.Errorf("metadata for node %s not found", pageId)
 		}
 	}
-	if title, exists := node["title"]; exists {
-		nodeMetadata["title"] = title.(string)
+	title, err := convertInterfaceToString(node["title"])
+	if err == nil {
+		nodeMetadata["title"] = title
 	}
-	if contentType, exists := nodeMetadata["type"]; exists {
-		nodeMetadata["contentType"] = contentType.(string)
+	contentType, err := convertInterfaceToString(nodeMetadata["type"])
+	if err == nil {
+		nodeMetadata["contentType"] = contentType
 	}
 	newMetadata := make(map[string]interface{})
 	for k, v := range nodeMetadata {
@@ -177,11 +240,15 @@ func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, node
 			newMetadata[k] = v
 		}
 	}
-	if typeN, exists := node["type"]; exists {
-		newMetadata["type"] = typeN.(string)
+
+
+	typeN, err := convertInterfaceToString(node["type"])
+	if err == nil {
+		newMetadata["type"] = typeN
 	}
-	if id, exists := node["id"]; exists {
-		newMetadata["id"] = id.(string)
+	id, err := convertInterfaceToString(node["id"])
+	if err == nil {
+		newMetadata["id"] = id
 	}
 	if _, exists := nodeMetadata[constants.ContentFile]; exists {
 		delete(newMetadata, constants.ContentFile)
@@ -199,8 +266,8 @@ func getNodeMetadataContent(filePath, metadataFileName string, metadataPtr, node
 func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]interface{}) error {
 	var nodeMetadata = make(map[string]interface{})
 	node := *nodePtr
-	pageId, exists := node["pageId"].(string)
-	if !exists {
+	pageId, err := convertInterfaceToString(node["pageId"])
+	if err != nil {
 		return nil
 	}
 	if section, exists := metadataSections[pageId]; exists {
@@ -208,8 +275,8 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 	} else {
 		return fmt.Errorf("metadata for node %s not found", pageId)
 	}
-	nodeContentPath, exists := nodeMetadata[constants.ContentFile].(string)
-	if !exists {
+	nodeContentPath, err := convertInterfaceToString(nodeMetadata[constants.ContentFile])
+	if err != nil {
 		return fmt.Errorf("content for node %s not found", pageId)
 	}
 	if _, err := os.Stat(filepath.Join("./", nodeContentPath)); os.IsNotExist(err) {
@@ -222,7 +289,7 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 	}
 
 	fileName := constants.IndexFile + extension
-	if typeN, exists := node["type"]; exists && typeN.(string) == "page" {
+	if typeN, err := convertInterfaceToString(node["type"]); err == nil && typeN == "page" {
 		fileName = nodeFileName + extension
 		if err := copyF.Copy(
 			filepath.Join("./", nodeContentPath),
@@ -238,4 +305,13 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 		log.Printf("error copy node content: %s\n", err)
 	}
 	return nil
+}
+
+func convertInterfaceToString(src interface{}) (string, error) {
+	var out string
+	var ok bool
+	if out, ok = src.(string); !ok{
+		return "", fmt.Errorf("convert interface to string error")
+	}
+	return out, nil
 }
