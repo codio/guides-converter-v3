@@ -44,6 +44,7 @@ func Convert() error {
 	}
 	if !bookJsonIsExists {
 		structure["children"] = rootChildrenWithoutBook
+		structure["name"] = ""
 	}
 
 	if err := createRootMetadata(metadata, structure); err != nil {
