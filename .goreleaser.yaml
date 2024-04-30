@@ -13,6 +13,7 @@ before:
     - go mod tidy
 
 builds:
+  - main: ./cmd/guides-converter-v3
   - env:
       - CGO_ENABLED=0
     goos:
