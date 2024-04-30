@@ -8,3 +8,5 @@ And don't forget to change the converter version new-generation/provisioning/rol
 
 # download url
 https://static-assets.codio.com/guides-converter-v3/{{OS}}-{{Arch}}/guides-converter-v3{{Ext}}
+
+for example: https://static-assets.codio.com/guides-converter-v3/linux-amd64/guides-converter-v3
