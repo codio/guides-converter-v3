@@ -21,18 +21,6 @@ jobs:
         with:
           go-version: '^1.22'
 
-      - name: Generate a token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
-      - name: Set config
-        run: |
-          git config --global url."https://${{ github.repository_owner }}:${{ steps.generate-token.outputs.token }}@github.com/codio".insteadOf "https://github.com/codio"
-
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
@@ -40,13 +28,18 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOPRIVATE: "github.com/codio/*"
 
       - name: Copy files S3
         run: |
           aws s3 cp dist/binary/ s3://codio-assets/guides-converter-v3/ --recursive --cache-control no-cache
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.ASSETS_UPLOADER_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.ASSETS_UPLOADER_SECRET }}
+            AWS_DEFAULT_REGION: 'us-east-1'
+
+      - name: Copy files S3 with hash commit
+        run: |
+          aws s3 cp dist/binary/linux-amd64/guides-converter-v3 s3://codio-assets/guides-converter-v3/guides-converter-v3-"$GITHUB_SHA" --recursive --cache-control no-cache
         env:
             AWS_ACCESS_KEY_ID: ${{ secrets.ASSETS_UPLOADER_KEY }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.ASSETS_UPLOADER_SECRET }}
