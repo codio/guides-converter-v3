@@ -1,5 +1,7 @@
-name: Publish Guides converter V3
-on: push
+name: Build release
+on:
+  release:
+    types: [created]
 
 permissions:
   contents: write
