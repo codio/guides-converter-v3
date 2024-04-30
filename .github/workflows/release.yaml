@@ -49,7 +49,7 @@ jobs:
 
       - name: Copy files S3 with hash commit
         run: |
-          aws s3 cp dist/binary/linux-amd64/guides-converter-v3 s3://codio-assets/guides-converter-v3/guides-converter-v3-"$GITHUB_SHA" --recursive --cache-control no-cache
+          aws s3 cp dist/binary/linux-amd64/guides-converter-v3 s3://codio-assets/guides-converter-v3/guides-converter-v3-"$GITHUB_SHA" --cache-control no-cache
         env:
             AWS_ACCESS_KEY_ID: ${{ secrets.ASSETS_UPLOADER_KEY }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.ASSETS_UPLOADER_SECRET }}
