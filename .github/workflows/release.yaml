@@ -1,35 +1,56 @@
-name: Publish Guides converter V3
-on: push
+name: Build release
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  goreleaser:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [linux]
-        goarch: [amd64]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '^1.18'
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      -
+        name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '^1.22'
 
-    - name: make dist
-      run: mkdir dist
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
 
-    - name: build
-      run: ./build.sh "$GITHUB_SHA" "dist"
-      env:
-        GOOS: ${{ matrix.goos }}
-        GOARCH: ${{ matrix.goarch }}
+      -
+        name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: upload to s3
-      run: ./uploadToS3.sh "${{ secrets.ASSETS_UPLOADER_KEY }}" "${{ secrets.ASSETS_UPLOADER_SECRET }}"
+      - name: Copy files S3
+        run: |
+          aws s3 cp dist/binary/ s3://codio-assets/guides-converter-v3/ --recursive --cache-control no-cache
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.ASSETS_UPLOADER_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.ASSETS_UPLOADER_SECRET }}
+            AWS_DEFAULT_REGION: 'us-east-1'
 
-    - name: Slack
-      uses: codio/codio-slack-action@master
-      if: always()
-      with:
-        slack_hook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        message: "<https://github.com/${{ github.repository }}/actions/runs/${{github.run_id}}|${{ github.workflow }} release> for ${{ github.repository }} by ${{ github.actor }} has ${{ job.status }} on branch ${{ github.ref_name }}"
-        success: ${{ job.status }}
+      - name: Copy files S3 with hash commit
+        run: |
+          aws s3 cp dist/binary/linux-amd64/guides-converter-v3 s3://codio-assets/guides-converter-v3/guides-converter-v3-"$GITHUB_SHA"
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.ASSETS_UPLOADER_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.ASSETS_UPLOADER_SECRET }}
+            AWS_DEFAULT_REGION: 'us-east-1'
