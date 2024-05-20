@@ -301,7 +301,7 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 	if err != nil {
 		return fmt.Errorf("content for node %s not found", pageId)
 	}
-	if _, err := os.Stat(filepath.Join("./", nodeContentPath)); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(guidespaths.GetGuidesPaths().WorkSpace, nodeContentPath)); os.IsNotExist(err) {
 		return fmt.Errorf("content for node %s not found", pageId)
 	}
 	extension := filepath.Ext(nodeContentPath)
@@ -314,7 +314,7 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 	if typeN, err := convertInterfaceToString(node["type"]); err == nil && typeN == "page" {
 		fileName = nodeFileName + extension
 		if err := copyF.Copy(
-			filepath.Join("./", nodeContentPath),
+			filepath.Join(guidespaths.GetGuidesPaths().WorkSpace, nodeContentPath),
 			filepath.Join(parentPath, fileName)); err != nil {
 			log.Printf("error copy node content: %s\n", err)
 		}
@@ -322,7 +322,7 @@ func convertNodeContent(parentPath string, metadataPtr, nodePtr *map[string]inte
 	}
 
 	if err := copyF.Copy(
-		filepath.Join("./", nodeContentPath),
+		filepath.Join(guidespaths.GetGuidesPaths().WorkSpace, nodeContentPath),
 		filepath.Join(parentPath, nodeFileName, fileName)); err != nil {
 		log.Printf("error copy node content: %s\n", err)
 	}
