@@ -2,13 +2,21 @@ package app
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/codio/guides-converter-v3/internal/assessments"
+	"github.com/codio/guides-converter-v3/internal/guidespaths"
 	"github.com/codio/guides-converter-v3/internal/cleanup"
 	"github.com/codio/guides-converter-v3/internal/content"
 )
 
 func Run() error {
+	args := os.Args[1:]
+	if len(args) > 1 {
+		guidesPath := args[0]
+		guidespaths.WorkSpace = guidesPath
+	}
+
 	inProgress, err := alreadyInProgress()
 	if err != nil {
 		return fmt.Errorf("alreadyInProgress error")

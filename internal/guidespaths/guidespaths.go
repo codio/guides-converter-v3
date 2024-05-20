@@ -1,6 +1,6 @@
-package constants
+package guidespaths
 
-const (
+var (
 	WorkSpace                  = "/home/codio/workspace/"
 	GuidesFolder               = WorkSpace + ".guides"
 	AssessmentsDescriptionFile = GuidesFolder + "/assessments.json"

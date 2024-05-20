@@ -6,11 +6,11 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/codio/guides-converter-v3/internal/constants"
+	"github.com/codio/guides-converter-v3/internal/guidespaths"
 )
 
 func alreadyInProgress() (bool, error) {
-	f, err := os.OpenFile(constants.AlreadyInProgressFlag, os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(guidespaths.AlreadyInProgressFlag, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return true, err
 	}
