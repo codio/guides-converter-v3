@@ -5,19 +5,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/codio/guides-converter-v3/internal/constants"
+	"github.com/codio/guides-converter-v3/internal/guidespaths"
 	"github.com/codio/guides-converter-v3/internal/utils"
 )
 
 func Convert() error {
-	if _, err := os.Stat(constants.AssessmentsDescriptionFile); os.IsNotExist(err) {
+	if _, err := os.Stat(guidespaths.GetGuidesPaths().AssessmentsDescriptionFile); os.IsNotExist(err) {
 		return nil
 	}
 	var assessments []interface{}
-	if err := utils.GetParsedJson(constants.AssessmentsDescriptionFile, &assessments); err != nil {
+	if err := utils.GetParsedJson(guidespaths.GetGuidesPaths().AssessmentsDescriptionFile, &assessments); err != nil {
 		return err
 	}
-	if err := utils.MakeDir(constants.AssessmentsFolder); err != nil {
+	if err := utils.MakeDir(guidespaths.GetGuidesPaths().AssessmentsFolder); err != nil {
 		return err
 	}
 	for _, val := range assessments {
@@ -34,7 +34,7 @@ func Convert() error {
 }
 
 func createAssessmentJson(fileName string, content map[string]interface{}) error {
-	fPath := filepath.Join(constants.AssessmentsFolder, fileName)
+	fPath := filepath.Join(guidespaths.GetGuidesPaths().AssessmentsFolder, fileName)
 	if err := utils.WriteJson(fPath, content); err != nil {
 		return err
 	}

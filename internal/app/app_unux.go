@@ -10,7 +10,7 @@ import (
 )
 
 func alreadyInProgress() (bool, error) {
-	f, err := os.OpenFile(guidespaths.AlreadyInProgressFlag, os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(guidespaths.GetGuidesPaths().AlreadyInProgressFlag, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return true, err
 	}

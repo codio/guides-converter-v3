@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package app
@@ -9,7 +10,7 @@ import (
 )
 
 func alreadyInProgress() (bool, error) {
-	lock := fslock.New(guidespaths.AlreadyInProgressFlag)
+	lock := fslock.New(guidespaths.GetGuidesPaths().AlreadyInProgressFlag)
 	if err := lock.Lock(); err != nil {
 		return true, nil
 	}

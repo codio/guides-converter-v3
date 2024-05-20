@@ -7,15 +7,15 @@ import (
 
 func AfterError() error {
 	// clean up assessments
-	if err := utils.RemoveDirectory(guidespaths.AssessmentsFolder); err != nil {
+	if err := utils.RemoveDirectory(guidespaths.GetGuidesPaths().AssessmentsFolder); err != nil {
 		return err
 	}
 	// clean up content
-	if err := utils.RemoveDirectory(guidespaths.TmpContentFolder); err != nil {
+	if err := utils.RemoveDirectory(guidespaths.GetGuidesPaths().TmpContentFolder); err != nil {
 		return err
 	}
 	// clean up AlreadyInProgressFlag
-	if err := utils.RemoveFile(guidespaths.AlreadyInProgressFlag); err != nil {
+	if err := utils.RemoveFile(guidespaths.GetGuidesPaths().AlreadyInProgressFlag); err != nil {
 		return err
 	}
 	return nil
@@ -23,27 +23,27 @@ func AfterError() error {
 
 func AfterSuccessfull() error {
 	// clean up assessments
-	if err := utils.RemoveDirectoryIfEmpty(guidespaths.AssessmentsFolder); err != nil {
+	if err := utils.RemoveDirectoryIfEmpty(guidespaths.GetGuidesPaths().AssessmentsFolder); err != nil {
 		return err
 	}
-	if err := utils.RemoveFile(guidespaths.AssessmentsDescriptionFile); err != nil {
+	if err := utils.RemoveFile(guidespaths.GetGuidesPaths().AssessmentsDescriptionFile); err != nil {
 		return err
 	}
 	// clean up content
-	if err := utils.RemoveFile(guidespaths.GuidesDescriptionFile); err != nil {
+	if err := utils.RemoveFile(guidespaths.GetGuidesPaths().GuidesDescriptionFile); err != nil {
 		return err
 	}
-	if err := utils.RemoveFile(guidespaths.GuidesBookFile); err != nil {
+	if err := utils.RemoveFile(guidespaths.GetGuidesPaths().GuidesBookFile); err != nil {
 		return err
 	}
-	if err := utils.RemoveDirectory(guidespaths.GuidesContentFolder); err != nil {
+	if err := utils.RemoveDirectory(guidespaths.GetGuidesPaths().GuidesContentFolder); err != nil {
 		return err
 	}
-	if err := utils.Rename(guidespaths.TmpContentFolder, guidespaths.GuidesContentFolder); err != nil {
+	if err := utils.Rename(guidespaths.GetGuidesPaths().TmpContentFolder, guidespaths.GetGuidesPaths().GuidesContentFolder); err != nil {
 		return err
 	}
 	// clean up AlreadyInProgressFlag
-	if err := utils.RemoveFile(guidespaths.AlreadyInProgressFlag); err != nil {
+	if err := utils.RemoveFile(guidespaths.GetGuidesPaths().AlreadyInProgressFlag); err != nil {
 		return err
 	}
 	return nil
